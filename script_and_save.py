@@ -7,13 +7,12 @@ import gaama
 import torch
 import torchvision
 
-from image_classification import ImageClassificationModule
+from tasks import ImageClassificationModule, SemanticSegmentationModule
 
 
 def get_models_and_weights(module: Any) -> Any:
     """Get torchvision models and weights"""
-    return torchvision.models.list_models(
-        module=module)
+    return torchvision.models.list_models(module=module)
 
 
 def publish_release(version: str, files: List[str]) -> None:
@@ -25,7 +24,7 @@ def publish_release(version: str, files: List[str]) -> None:
         password=os.getenv("GIT_PASSWORD"),
         owner="torchexpo",
         repository="torchvision-models")
-    release.publish(os.getenv("VERSION"), files=files, zip_files=False)
+    release.publish(tag=os.getenv("VERSION"), files=files, zip_files=False)
 
 
 def run_example(module: str, model_weight: Any, example_img: Any) -> None:
@@ -41,7 +40,8 @@ if __name__ == "__main__":
     print("torchvision:", torchvision.__version__)
     task_and_script_modules = [[torchvision.models, ImageClassificationModule,
                                 "examples/image_classification.jpg"],
-                               [torchvision.models.segmentation, None, ""],
+                               [torchvision.models.segmentation, SemanticSegmentationModule,
+                                "examples/semantic_segmentation.jpg"],
                                [torchvision.models.detection, None, ""]]
     output_files = []
     for item in task_and_script_modules:
@@ -62,7 +62,8 @@ if __name__ == "__main__":
                     output_files.append(filename)
                     try:
                         run_example(filename, weight, example)
-                    except:  # pylint: disable=bare-except
+                    except Exception as e:  # pylint: disable=bare-except
+                        print(str(e))
                         print("some error running example for model:", slug)
                     break
                 break
