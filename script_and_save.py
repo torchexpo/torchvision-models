@@ -3,6 +3,7 @@ import os
 from typing import Any, List
 
 from PIL import Image
+import gaama
 import torch
 import torchvision
 
@@ -19,6 +20,12 @@ def publish_release(version: str, files: List[str]) -> None:
     """Create GitHub Release using GaAMA"""
     print("github release:", version)
     print("release assets:", files)
+    release = gaama.GaAMA(
+        username=os.getenv("GIT_USERNAME"),
+        password=os.getenv("GIT_PASSWORD"),
+        owner="torchexpo",
+        repository="torchvision-models")
+    release.publish(os.getenv("VERSION"), files=files, zip_files=False)
 
 
 def run_example(module: str, model_weight: Any, example_img: Any) -> None:
@@ -29,9 +36,9 @@ def run_example(module: str, model_weight: Any, example_img: Any) -> None:
     loaded_module.forward(model_input.unsqueeze(0))
 
 
-if __name__ == '__main__':
-    print('torch:', torch.__version__)
-    print('torchvision:', torchvision.__version__)
+if __name__ == "__main__":
+    print("torch:", torch.__version__)
+    print("torchvision:", torchvision.__version__)
     task_and_script_modules = [[torchvision.models, ImageClassificationModule,
                                 "examples/image_classification.jpg"],
                                [torchvision.models.segmentation, None, ""],
