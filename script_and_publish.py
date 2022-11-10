@@ -79,12 +79,13 @@ if __name__ == "__main__":
     output_files = []
     items = []
     for item in task_and_script_modules:
-        task_module, script_module, example, is_detection = item
+        task_module, script_module, _example, _is_detection = item
         models = get_models_and_weights(task_module)
-        for model in models:
-            weights = torchvision.models.get_model_weights(model)
-            for weight in weights:
-                result = script_and_save(model, weight, example, is_detection)
+        for _model in models:
+            weights = torchvision.models.get_model_weights(_model)
+            for _weight in weights:
+                result = script_and_save(
+                    _model, _weight, _example, _is_detection)
                 if result is not None:
                     output_files.append(result)
     publish_release(os.getenv("VERSION")+os.getenv("TASK"), output_files)
