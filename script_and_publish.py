@@ -23,6 +23,29 @@ def get_models_and_weights(module: Any) -> Any:
     return all_models
 
 
+def write_data(version: str, task: str, files: List[str]) -> None:
+    """Write data file for contribution"""
+    if not os.path.exists("data"):
+        os.mkdir("data")
+    dataset = "imagenet"
+    if task != "image-classification":
+        dataset = "coco"
+    for file in files:
+        result = file.replace(".pt", "")
+        os.mkdir("data/"+result)
+        f = open("data/"+result+"/"+result+".yaml", "w+")
+        f.write(f"""values:
+  - name: {result}
+    description: PyTorch ResNet-152 pretrained on {dataset} dataset
+    dataset: {dataset}
+    task: {task}
+    language: en
+    source: https://github.com/torchexpo/torchvision-models
+    download: https://github.com/torchexpo/torchvision-models/releases/download/{version}-{task}/{file}""")
+        f = open("data/"+result+"/"+result+".md", "w+")
+        f.write("# "+result+"\nTorchScript module contributed by TorchExpo")
+
+
 def publish_release(version: str, files: List[str]) -> None:
     """Create GitHub Release using GaAMA"""
     print("github release:", version)
@@ -35,11 +58,13 @@ def publish_release(version: str, files: List[str]) -> None:
     release.publish(tag=version, files=files, zip_files=False)
 
 
-def script_and_save(model: str, weight: Any, example: Any, is_detection: bool) -> str:
+def script_and_save(model: str, weight: Any, example: Any, is_detection: bool, write_data: bool = False) -> str:
     """Script the model, save the output and select for publish"""
     slug = str(model).replace("_", "-").lower() + "-" + \
         str(weight).split(".", 1)[1].replace("_", "-").lower()
     filename = slug+".pt"
+    if write_data:
+        return filename
     try:
         derived_model = torchvision.models.get_model(
             model, weights=weight, progress=False)
@@ -88,6 +113,7 @@ if __name__ == "__main__":
                                         "examples/object_detection.jpg", True])
     output_files = []
     items = []
+    want_data = True if os.getenv("WANT_DATA") == "true" else False
     for item in task_and_script_modules:
         task_module, script_module, _example, _is_detection = item
         models = get_models_and_weights(task_module)
@@ -95,7 +121,11 @@ if __name__ == "__main__":
             weights = torchvision.models.get_model_weights(_model)
             _weight = weights.DEFAULT
             result = script_and_save(
-                _model, _weight, _example, _is_detection)
+                _model, _weight, _example, _is_detection, want_data)
             if result is not None:
                 output_files.append(result)
-    publish_release(os.getenv("VERSION")+"-"+os.getenv("TASK"), output_files)
+    if want_data:
+        write_data(os.getenv("VERSION"), os.getenv("TASK"), output_files)
+    if not want_data:
+        publish_release(os.getenv("VERSION")+"-" +
+                        os.getenv("TASK"), output_files, False)
