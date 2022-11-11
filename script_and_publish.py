@@ -10,9 +10,15 @@ from torchvision.io.image import read_image
 from tasks import ImageClassificationModule, SemanticSegmentationModule, ObjectDetectionModule
 
 
+SKIPPED_MODELS = ['googlenet', 'inception_v3']
+
+
 def get_models_and_weights(module: Any) -> Any:
     """Get torchvision models and weights"""
-    return torchvision.models.list_models(module=module)
+    all_models = torchvision.models.list_models(module=module)
+    for skipped_model in SKIPPED_MODELS:
+        all_models.remove(skipped_model)
+    return all_models
 
 
 def publish_release(version: str, files: List[str]) -> None:
