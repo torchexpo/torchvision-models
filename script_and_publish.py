@@ -48,6 +48,9 @@ def script_and_save(model: str, weight: Any, example: Any, is_detection: bool) -
     scripted_module = torch.jit.script(
         script_module(model=derived_model))
     scripted_module.save(filename)
+    # delete weights
+    os.remove(os.path.expanduser('~') +
+              "/.cache/torch/hub/checkpoints/"+weight.url.split("/")[-1:][0])
     try:
         run_example(filename, weight, example, is_detection)
         return filename
