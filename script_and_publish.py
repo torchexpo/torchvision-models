@@ -34,7 +34,7 @@ def script_and_save(model: str, weight: Any, example: Any, is_detection: bool) -
     filename = slug+".pt"
     try:
         derived_model = torchvision.models.get_model(
-            model, weights=weight)
+            model, weights=weight, progress=False)
     except Exception as exp:  # pylint: disable=broad-except
         print(str(exp))
         print("error deriving model:", slug)
@@ -42,8 +42,7 @@ def script_and_save(model: str, weight: Any, example: Any, is_detection: bool) -
         script_module(model=derived_model))
     scripted_module.save(filename)
     try:
-        run_example(filename, weight,
-                    example, is_detection)
+        run_example(filename, weight, example, is_detection)
         return filename
     except Exception as exp:  # pylint: disable=broad-except
         print(str(exp))
@@ -88,4 +87,4 @@ if __name__ == "__main__":
                     _model, _weight, _example, _is_detection)
                 if result is not None:
                     output_files.append(result)
-    publish_release(os.getenv("VERSION")+os.getenv("TASK"), output_files)
+    publish_release(os.getenv("VERSION")+"-"+os.getenv("TASK"), output_files)
