@@ -92,9 +92,9 @@ if __name__ == "__main__":
         models = get_models_and_weights(task_module)
         for _model in models:
             weights = torchvision.models.get_model_weights(_model)
-            for _weight in weights:
-                result = script_and_save(
-                    _model, _weight, _example, _is_detection)
-                if result is not None:
-                    output_files.append(result)
+            _weight = weights.DEFAULT
+            result = script_and_save(
+                _model, _weight, _example, _is_detection)
+            if result is not None:
+                output_files.append(result)
     publish_release(os.getenv("VERSION")+"-"+os.getenv("TASK"), output_files)
