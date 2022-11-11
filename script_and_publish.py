@@ -17,7 +17,8 @@ def get_models_and_weights(module: Any) -> Any:
     """Get torchvision models and weights"""
     all_models = torchvision.models.list_models(module=module)
     for skipped_model in SKIPPED_MODELS:
-        all_models.remove(skipped_model)
+        if skipped_model in all_models:
+            all_models.remove(skipped_model)
     return all_models
 
 
