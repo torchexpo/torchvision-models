@@ -10,7 +10,8 @@ from torchvision.io.image import read_image
 from tasks import ImageClassificationModule, SemanticSegmentationModule, ObjectDetectionModule
 
 
-SKIPPED_MODELS = ['googlenet', 'inception_v3']
+SKIPPED_MODELS = ['googlenet', 'inception_v3',
+                  'vit_h_14', 'vit_l_16', 'vit_l_32', 'regnet_y_128gf']
 
 
 def get_models_and_weights(module: Any) -> Any:
