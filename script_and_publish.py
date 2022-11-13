@@ -29,14 +29,14 @@ def write_data(version: str, task: str, files: List[str]) -> None:
         os.mkdir("data")
     dataset = "imagenet"
     if task != "image-classification":
-        dataset = "coco"
+        dataset = "coco-2017"
     for file in files:
         result = file.replace(".pt", "")
         os.mkdir("data/"+result)
         f = open("data/"+result+"/"+result+".yaml", "w+")
         f.write(f"""values:
   - name: {result}
-    description: PyTorch ResNet-152 pretrained on {dataset} dataset
+    description: TorchVision model {result} pretrained on {dataset} dataset
     dataset: {dataset}
     task: {task}
     language: en
